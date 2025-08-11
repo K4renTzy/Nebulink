@@ -91,9 +91,9 @@
       if (input.match(/^https?:\/\/|^www\./)) {
         window.location.href = input.startsWith('http') ? input : 'https://' + input;
       } else {
-        // Otherwise, search DuckDuckGo
+        // Otherwise, search Yahoo
         const encoded = encodeURIComponent(input);
-        window.location.href = `https://duckduckgo.com/?q=${encoded}`;
+        window.location.href = `https://search.yahoo.com/search?p=${encoded}`;
       }
     }
   </script>
