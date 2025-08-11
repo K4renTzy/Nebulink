@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VoidBin</title>
+  <title>VoidAI</title>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: radial-gradient(circle at top left, #0f0f0f, #1a1a1a);
-      color: #eee;
+      background: linear-gradient(to right, #0f0f0f, #1a1a1a);
+      color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -18,113 +18,73 @@
 
     h1 {
       font-size: 2.5em;
-      margin-bottom: 10px;
-      background: linear-gradient(to right, #ff0040, #ff6a00);
+      margin-bottom: 20px;
+      background: linear-gradient(to right, #00f0ff, #ff00c8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .drop-zone {
-      border: 2px dashed #555;
-      border-radius: 12px;
-      padding: 60px;
-      text-align: center;
+    textarea {
       width: 100%;
       max-width: 600px;
-      transition: border-color 0.3s ease;
+      height: 120px;
+      padding: 12px;
+      font-size: 1em;
+      border-radius: 8px;
+      border: none;
+      resize: none;
+      margin-bottom: 20px;
       background: #222;
+      color: #fff;
     }
 
-    .drop-zone.dragover {
-      border-color: #ff0040;
-      background: #2a2a2a;
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 6px;
+      border: none;
+      background: #00f0ff;
+      color: #000;
+      cursor: pointer;
     }
 
-    .file-list {
+    .response {
       margin-top: 30px;
-      width: 100%;
       max-width: 600px;
       background: #181818;
-      border-radius: 8px;
       padding: 20px;
-      box-shadow: 0 0 10px #000;
-    }
-
-    .file-item {
-      padding: 10px;
-      border-bottom: 1px solid #333;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .file-item:last-child {
-      border-bottom: none;
-    }
-
-    .file-name {
-      color: #ff6a00;
-    }
-
-    .file-size {
-      color: #aaa;
-      font-size: 0.9em;
+      border-radius: 8px;
+      white-space: pre-wrap;
     }
   </style>
 </head>
 <body>
-  <h1>VoidBin</h1>
-  <div class="drop-zone" id="dropZone">
-    <p>Drag & drop your media files here</p>
-    <p>or click to select</p>
-    <input type="file" id="fileInput" multiple style="display:none;" />
-  </div>
-
-  <div class="file-list" id="fileList"></div>
+  <h1>VoidAI</h1>
+  <textarea id="userInput" placeholder="Ask me anything..."></textarea>
+  <button onclick="askAI()">Send</button>
+  <div class="response" id="responseBox"></div>
 
   <script>
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
-    const fileList = document.getElementById('fileList');
+    async function askAI() {
+      const input = document.getElementById('userInput').value;
+      const responseBox = document.getElementById('responseBox');
+      responseBox.textContent = "Thinking...";
 
-    dropZone.addEventListener('click', () => fileInput.click());
-
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('dragover');
-    });
-
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('dragover');
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
-      handleFiles(e.dataTransfer.files);
-    });
-
-    fileInput.addEventListener('change', () => {
-      handleFiles(fileInput.files);
-    });
-
-    function handleFiles(files) {
-      fileList.innerHTML = '';
-      Array.from(files).forEach(file => {
-        const item = document.createElement('div');
-        item.className = 'file-item';
-
-        const name = document.createElement('div');
-        name.className = 'file-name';
-        name.textContent = file.name;
-
-        const size = document.createElement('div');
-        size.className = 'file-size';
-        size.textContent = `${(file.size / 1024).toFixed(1)} KB`;
-
-        item.appendChild(name);
-        item.appendChild(size);
-        fileList.appendChild(item);
+      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer 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"
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "user", content: input }]
+        })
       });
+
+      const data = await res.json();
+      const reply = data.choices?.[0]?.message?.content || "No response.";
+      responseBox.textContent = reply;
     }
   </script>
 </body>
